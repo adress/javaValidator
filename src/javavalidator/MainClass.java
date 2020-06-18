@@ -5,9 +5,6 @@
  */
 package javavalidator;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  *
  * @author Andres
@@ -19,15 +16,15 @@ public class MainClass {
      */
     public static void main(String[] args) {
         Persona persona = new Persona();
-        try {
-            persona.setNombre(Validator.texto("Jaime", "Nombre", "min:5|requeried|max:10"));
-            persona.setApellido(Validator.texto("12345", "Apellido", "max:10|requeried"));
-            persona.setEdad(Integer.valueOf(Validator.texto("22", "Edad", "requeried|integer")));
+        Validator validator = new Validator();
+        persona.setNombre(validator.texto("jaim", "Nombre", "min:5|max:10"));
+        persona.setApellido(validator.texto("12345", "Apellido", "max:5|requeried"));
+        persona.setEdad(validator.entero("32", "Edad", "integer|max:30"));
+        persona.setEmail(validator.texto("andres@123.co", "email", "requeried|email"));
+        if (validator.getCountErrors() > 0) {
+            System.out.println(validator.getErrorsMessage());
+        } else {
             persona.guardar();
-        } catch (Exception ex) {
-            System.err.println("ERROR");
-            System.err.println(ex.getMessage());
-            Logger.getLogger(MainClass.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
