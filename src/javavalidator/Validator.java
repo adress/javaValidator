@@ -24,109 +24,161 @@ public class Validator {
         errores = new ArrayList<>();
     }
 
+    /**
+     *
+     */
     public void clearErrors() {
         errores.clear();
     }
 
+    /**
+     *
+     * @return
+     */
     public int getCountErrors() {
         return errores.size();
     }
 
+    /**
+     *
+     * @return
+     */
     public List<String> getErrors() {
         return errores;
     }
-    
-    public String getErrorsMessage(){
-      return errores.stream().collect(Collectors.joining( "\n" ));
+
+    /**
+     *
+     * @return
+     */
+    public String getErrorsMessage() {
+        return errores.stream().collect(Collectors.joining("\n"));
     }
 
-    public String texto(String texto, String nombre, String reglas) {
-        return validador(texto, nombre, reglas);
+    /**
+     *
+     * @param text
+     * @param name
+     * @param rules
+     * @return
+     */
+    public String text(String text, String name, String rules) {
+        return validador(text, name, rules);
     }
 
-    public int entero(String numero, String nombre, String reglas) {
-        reglas += "|integer";
-        String respuesta = validador(numero, nombre, reglas);
+    /**
+     *
+     * @param number
+     * @param name
+     * @param rules
+     * @return
+     */
+    public int integer(String number, String name, String rules) {
+        rules += "|integer";
+        String respuesta = validador(number, name, rules);
         return respuesta.equals("") ? 0 : Integer.parseInt(respuesta);
     }
 
-    public double doble(String numero, String nombre, String reglas) {
-        reglas += "|double";
-        String respuesta = validador(numero, nombre, reglas);
+    /**
+     *
+     * @param number
+     * @param name
+     * @param rules
+     * @return
+     */
+    public double doble(String number, String name, String rules) {
+        rules += "|double";
+        String respuesta = validador(number, name, rules);
         return respuesta.equals("") ? 0 : Double.parseDouble(respuesta);
     }
 
-    public String validador(String texto, String nombre, String reglas) {
+    /**
+     *
+     * @param text
+     * @param name
+     * @param rules
+     * @return
+     */
+    public String validador(String text, String name, String rules) {
 
         boolean isNumeric = false;
-        double textoLength = texto.length();
+        double textoLength = text.length();
 
         if (textoLength > 0) {
-            if (reglas.contains("integer") || reglas.contains("double")) {
+            if (rules.contains("integer") || rules.contains("double") || rules.contains("float")) {
                 try {
-                    textoLength = Double.parseDouble(texto);
+                    textoLength = Double.parseDouble(text);
                     isNumeric = true;
                 } catch (NumberFormatException | NullPointerException e) {
-                    errores.add("El campo " + nombre + " debe ser numerico");
+                    errores.add("El campo " + name + " debe ser numerico");
+                    return "";
                 }
             }
         }
 
-        String[] parametros = new String[3];
-        List<String> rules = Arrays.asList(reglas.split("\\s*\\|\\s*"));
+        String[] parameters = new String[3];
+        List<String> subRules = Arrays.asList(rules.split("\\s*\\|\\s*"));
         //System.out.println(nombre + ": " + rules); //print rules
-        for (String regla : rules) {
+        for (String regla : subRules) {
             //parte los parametros de las reglas {nombreregla, param1, param2}
-            parametros = regla.split("\\s*:\\s*");
+            parameters = regla.split("\\s*:\\s*");
             //System.out.println(regla + ": " + parametros[0]);
-            switch (parametros[0]) {
+            switch (parameters[0]) {
                 case "min":
-                    if (textoLength < Integer.parseInt(parametros[1])) {
+                    if (textoLength < Integer.parseInt(parameters[1])) {
                         if (isNumeric) {
-                            errores.add("El campo " + nombre + " debe ser mayor o igual a " + parametros[1]);
+                            errores.add("El campo " + name + " debe ser mayor o igual a " + parameters[1]);
                         } else {
-                            errores.add("El campo " + nombre + " debe tener almenos " + parametros[1] + " caracteres");
+                            errores.add("El campo " + name + " debe tener almenos " + parameters[1] + " caracteres");
                         }
                     }
                     break;
                 case "max":
-                    if (textoLength > Integer.parseInt(parametros[1])) {
+                    if (textoLength > Integer.parseInt(parameters[1])) {
                         if (isNumeric) {
-                            errores.add("El campo " + nombre + " debe ser menor o igual a " + parametros[1]);
+                            errores.add("El campo " + name + " debe ser menor o igual a " + parameters[1]);
                         } else {
-                            errores.add("El campo " + nombre + " debe tener maximo " + parametros[1] + " caracteres");
+                            errores.add("El campo " + name + " debe tener maximo " + parameters[1] + " caracteres");
                         }
                     }
                     break;
                 case "integer":
                     if (textoLength > 0) {
                         try {
-                            Double.parseDouble(texto);
+                            Double.parseDouble(text);
                         } catch (NumberFormatException | NullPointerException e) {
-                            errores.add("El campo " + nombre + " debe ser numerico");
+                            errores.add("El campo " + name + " debe ser numerico");
                         }
                     }
                     break;
+                case "double":
+                    //esta regla ya esta validada
+                    break;
                 case "email":
                     if (textoLength > 0) {
-                        if (!validarEmail(texto)) {
-                            errores.add("El campo " + nombre + " no es un email valido");
+                        if (!validarEmail(text)) {
+                            errores.add("El campo " + name + " no es un email valido");
                         }
                     }
                     break;
                 case "requeried":
-                    if (texto.length() == 0) {
-                        errores.add("El campo " + nombre + " es requerido");
+                    if (text.length() == 0) {
+                        errores.add("El campo " + name + " es requerido");
                     }
                     break;
                 default:
-                    errores.add("Regla " + parametros[0] + " desconocida");
+                    errores.add("Regla " + parameters[0] + " desconocida");
             }
 
         }
-        return texto;
+        return text;
     }
 
+    /**
+     *
+     * @param email
+     * @return
+     */
     public boolean validarEmail(String email) {
         Pattern pattern = Pattern
                 .compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"

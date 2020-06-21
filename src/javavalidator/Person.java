@@ -9,12 +9,17 @@ package javavalidator;
  *
  * @author Andres
  */
-public class Persona {
+public class Person {
 
     private String nombre;
     private String apellido;
     private int edad;
     private String email;
+    private double estatura;
+
+    public void setEstatura(double estatura) {
+        this.estatura = estatura;
+    }
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
@@ -32,12 +37,13 @@ public class Persona {
         this.email = email;
     }
 
-    public void guardar() {
+    public void save() {
         System.out.println("Persona( \n"
                 + "\tNombre:" + nombre + "\n"
                 + "\tApellido:" + apellido + "\n"
                 + "\tEdad:" + edad + "\n"
                 + "\tEmail:" + email + "\n"
+                + "\tEstatura:" + estatura + "\n"
                 + ")");
     }
 
